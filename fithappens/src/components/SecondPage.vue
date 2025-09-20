@@ -3,6 +3,11 @@
     <div class="content">
       <h1>Second Page</h1>
       <router-link to="/">Go to Home Page</router-link>
+      <div style="margin-bottom: 16px;">
+        <label style="font-weight: bold; margin-right: 12px;">Change:</label>
+        <button :class="{active: clothesMode==='top'}" @click="clothesMode='top'">Top</button>
+        <button :class="{active: clothesMode==='bottom'}" @click="clothesMode='bottom'">Bottom</button>
+      </div>
       <div class="color-buttons">
         <button @click="setClothesColor('red')">Red</button>
         <button @click="setClothesColor('orange')">Orange</button>
@@ -14,8 +19,14 @@
         <button @click="setClothesColor('grey')">Grey</button>
       </div>
       <div class="switch-buttons">
-        <button @click="showSkirt = true">Show Skirt</button>
-        <button @click="showSkirt = false">Show Pants</button>
+        <span>
+          <button @click="showSkirt = true">Show Skirt</button>
+          <button @click="showSkirt = false">Show Pants</button>
+        </span>
+        <span>
+          <button @click="showTShirt = true">Show T-Shirt</button>
+          <button @click="showTShirt = false">Show Blouse</button>
+        </span>
       </div>
     </div>
     <div class="model-box" ref="modelBox">
@@ -45,18 +56,23 @@ export default {
   name: 'SecondPage',
   setup() {
     const modelBox = ref(null);
-    const skirtMeshRef = ref(null);
-    const pantsMeshRef = ref(null);
-    const clothesColor = ref(CLOTHES_COLORS.grey);
-    const showSkirt = ref(true);
+  const skirtMeshRef = ref(null);
+  const pantsMeshRef = ref(null);
+  const tshirtMeshRef = ref(null);
+  const blouseMeshRef = ref(null);
+  const clothesColor = ref(CLOTHES_COLORS.grey);
+  const showSkirt = ref(true);
+  const showTShirt = ref(true);
+  const clothesMode = ref('bottom');
 
     function setClothesColor(colorName) {
       clothesColor.value = CLOTHES_COLORS[colorName];
-      if (skirtMeshRef.value) {
-        skirtMeshRef.value.material.color.set(clothesColor.value);
-      }
-      if (pantsMeshRef.value) {
-        pantsMeshRef.value.material.color.set(clothesColor.value);
+      if (clothesMode.value === 'bottom') {
+        if (skirtMeshRef.value) skirtMeshRef.value.material.color.set(clothesColor.value);
+        if (pantsMeshRef.value) pantsMeshRef.value.material.color.set(clothesColor.value);
+      } else {
+        if (tshirtMeshRef.value) tshirtMeshRef.value.material.color.set(clothesColor.value);
+        if (blouseMeshRef.value) blouseMeshRef.value.material.color.set(clothesColor.value);
       }
     }
 
@@ -81,8 +97,8 @@ export default {
       controls.update();
 
       const light = new THREE.DirectionalLight(0xffffff, 1);
-      light.position.set(1, 1, 1).normalize();
-      scene.add(light);
+  light.position.set(1, 1, 1).normalize();
+  scene.add(light);
 
       const loader = new OBJLoader();
       // Load Avatar (mannequin)
@@ -119,7 +135,7 @@ export default {
               const center2 = box2.getCenter(new THREE.Vector3());
               skirt.position.sub(center2);
               skirt.position.y += 20 * scale;
-              skirt.position.z -= 0.01;
+              skirt.position.z -= 0.003;
               scene.add(skirt);
 
               // Load Pants (clothes)
@@ -137,7 +153,7 @@ export default {
                   const centerP = boxP.getCenter(new THREE.Vector3());
                   pants.position.sub(centerP);
                   pants.position.y += (box.max.y - box.min.y) * -0.16;
-                  pants.position.z += 0.0007;
+                  pants.position.z += 0.00075;
                   scene.add(pants);
                   pants.visible = false;
 
@@ -147,7 +163,8 @@ export default {
                     function (tshirt) {
                       tshirt.traverse(child => {
                         if (child.isMesh) {
-                          child.material = new THREE.MeshPhongMaterial({ color: 0x2196f3 });
+                          child.material = new THREE.MeshPhongMaterial({ color: clothesColor.value });
+                          tshirtMeshRef.value = child;
                         }
                       });
                       tshirt.scale.set(scale * 1.12, scale * 1.12, scale * 1.12);
@@ -157,7 +174,33 @@ export default {
                       tshirt.position.y += (box.max.y - box.min.y) * 0.223;
                       tshirt.position.z += 0.01;
                       scene.add(tshirt);
-                      animate();
+                      tshirt.visible = showTShirt.value;
+
+                      // Load Blouse (if you have blouse.obj)
+                      loader.load(
+                        'src/assets/models/blouse.obj',
+                        function (blouse) {
+                          blouse.traverse(child => {
+                            if (child.isMesh) {
+                              child.material = new THREE.MeshPhongMaterial({ color: clothesColor.value });
+                              blouseMeshRef.value = child;
+                            }
+                          });
+                          blouse.scale.set(scale * 1.12, scale * 1.12, scale * 1.12);
+                          const box4 = new THREE.Box3().setFromObject(blouse);
+                          const center4 = box4.getCenter(new THREE.Vector3());
+                          blouse.position.sub(center4);
+                          blouse.position.y += (box.max.y - box.min.y) * 0.245;
+                          blouse.position.z += 0.01;
+                          scene.add(blouse);
+                          blouse.visible = !showTShirt.value;
+                          animate();
+                        },
+                        undefined,
+                        function (error) {
+                          console.error('Error loading blouse.obj:', error);
+                        }
+                      );
                     },
                     undefined,
                     function (error) {
@@ -185,17 +228,17 @@ export default {
 
       function animate() {
         requestAnimationFrame(animate);
-        // Toggle skirt/pants visibility
-        if (skirtMeshRef.value && pantsMeshRef.value) {
-          skirtMeshRef.value.parent.visible = showSkirt.value;
-          pantsMeshRef.value.parent.visible = !showSkirt.value;
-        }
+        // Only one bottom and one top visible
+        if (skirtMeshRef.value) skirtMeshRef.value.parent.visible = showSkirt.value;
+        if (pantsMeshRef.value) pantsMeshRef.value.parent.visible = !showSkirt.value;
+        if (tshirtMeshRef.value) tshirtMeshRef.value.parent.visible = showTShirt.value;
+        if (blouseMeshRef.value) blouseMeshRef.value.parent.visible = !showTShirt.value;
         controls.update();
         renderer.render(scene, camera);
       }
     });
 
-    return { modelBox, setClothesColor, showSkirt };
+  return { modelBox, setClothesColor, showSkirt, showTShirt, clothesMode };
   }
 };
 </script>
