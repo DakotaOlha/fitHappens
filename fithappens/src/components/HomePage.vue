@@ -102,7 +102,7 @@
           </div>
           <div class="footer-section">
             <h4>Контакти</h4>
-            <p>📧 info@fithappens.ua</p>
+              <p>📧 <a href="#" @click.prevent="$router.push('/second')">info@fithappens.ua</a></p>
             <p>📞 +38 (050) 123-45-67</p>
             <p>📍 м. Київ, вул. Модна, 15</p>
           </div>
