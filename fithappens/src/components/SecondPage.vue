@@ -35,28 +35,28 @@
         </div>
         <div class="color-buttons">
           <template v-if="colorotype === 'Літо'">
-            <button @click="setClothesColor('#E88488')" style="background:#F0F8FF">#F0F8FF</button>
-            <button @click="setClothesColor('#B0C4DE')" style="background:#B0C4DE">#B0C4DE</button>
-            <button @click="setClothesColor('#E6E6FA')" style="background:#E6E6FA">#E6E6FA</button>
-            <button @click="setClothesColor('#6495ED')" style="background:#6495ED">#6495ED</button>
-          </template>
-          <template v-else-if="colorotype === 'Весна'">
-            <button @click="setClothesColor('#FFD700')" style="background:#FFD700">#FFD700</button>
-            <button @click="setClothesColor('#FFB07A')" style="background:#FFB07A">#FFB07A</button>
-            <button @click="setClothesColor('#FFA07A')" style="background:#FFA07A">#FFA07A</button>
-            <button @click="setClothesColor('#F0E68C')" style="background:#F0E68C">#F0E68C</button>
+            <button @click="setClothesColor('#E88488')" style="background:#E88488">#E88488</button>
+            <button @click="setClothesColor('#ECDF8A')" style="background:#ECDF8A">#ECDF8A</button>
+            <button @click="setClothesColor('#B8A18B')" style="background:#B8A18B">#B8A18B</button>
+            <button @click="setClothesColor('#9E224A')" style="background:#9E224A;color:#fff">#9E224A</button>
           </template>
           <template v-else-if="colorotype === 'Зима'">
-            <button @click="setClothesColor('#000080')" style="background:#000080;color:#fff">#000080</button>
-            <button @click="setClothesColor('#DC143C')" style="background:#DC143C;color:#fff">#DC143C</button>
-            <button @click="setClothesColor('#FFFFFF')" style="background:#FFFFFF">#FFFFFF</button>
-            <button @click="setClothesColor('#4169E1')" style="background:#4169E1;color:#fff">#4169E1</button>
+            <button @click="setClothesColor('#0092DD')" style="background:#0092DD;color:#fff">#0092DD</button>
+            <button @click="setClothesColor('#54B444')" style="background:#54B444">#54B444</button>
+            <button @click="setClothesColor('#AC7A28')" style="background:#AC7A28">#AC7A28</button>
+            <button @click="setClothesColor('#F7D907')" style="background:#F7D907">#F7D907</button>
           </template>
           <template v-else-if="colorotype === 'Осінь'">
-            <button @click="setClothesColor('#CD853F')" style="background:#CD853F;color:#fff">#CD853F</button>
-            <button @click="setClothesColor('#DAA520')" style="background:#DAA520">#DAA520</button>
-            <button @click="setClothesColor('#B22222')" style="background:#B22222;color:#fff">#B22222</button>
-            <button @click="setClothesColor('#FF6347')" style="background:#FF6347">#FF6347</button>
+            <button @click="setClothesColor('#952927')" style="background:#952927;color:#fff">#952927</button>
+            <button @click="setClothesColor('#BC825C')" style="background:#BC825C">#BC825C</button>
+            <button @click="setClothesColor('#BF9F62')" style="background:#BF9F62">#BF9F62</button>
+            <button @click="setClothesColor('#693A28')" style="background:#693A28;color:#fff">#693A28</button>
+          </template>
+          <template v-else-if="colorotype === 'Весна'">
+            <button @click="setClothesColor('#FFF500')" style="background:#FFF500">#FFF500</button>
+            <button @click="setClothesColor('#E77843')" style="background:#E77843">#E77843</button>
+            <button @click="setClothesColor('#DC332E')" style="background:#DC332E;color:#fff">#DC332E</button>
+            <button @click="setClothesColor('#CODD71')" style="background:#CODD71">#CODD71</button>
           </template>
         </div>
       </div>
