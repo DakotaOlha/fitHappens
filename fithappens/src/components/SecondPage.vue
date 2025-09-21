@@ -417,138 +417,67 @@ export default {
     }
 
     const loadModels = () => {
-      const loader = new OBJLoader()
-      
-      loader.load(
-        '/models/avatar.obj',
-        function (avatar) {
-          avatar.traverse(child => {
-            if (child.isMesh) {
-              child.material = new THREE.MeshPhongMaterial({ color: 0xffdbac }) // skin color
-            }
-          })
-          // Center and scale avatar
-          const box = new THREE.Box3().setFromObject(avatar)
-          const size = box.getSize(new THREE.Vector3())
-          const scale = 1 / Math.max(size.x, size.y, size.z)
-          avatar.scale.set(scale, scale, scale)
-          box.setFromObject(avatar)
-          const center = box.getCenter(new THREE.Vector3())
-          avatar.position.sub(center)
-          scene.add(avatar)
+  const loader = new OBJLoader()
+  const modelsPath = '/models' // папка public/models
 
-          // Load Skirt2 (clothes)
-          loader.load(
-            '/models/skirt2.obj',
-            function (skirt) {
-              skirt.traverse(child => {
-                if (child.isMesh) {
-                  child.material = new THREE.MeshPhongMaterial({ color: CLOTHES_COLORS[selectedColor.value] })
-                  skirtMeshRef.value = child
-                }
-              })
-              skirt.scale.set(scale * 1.15, scale * 1.15, scale * 1.15)
-              const box2 = new THREE.Box3().setFromObject(skirt)
-              const center2 = box2.getCenter(new THREE.Vector3())
-              skirt.position.sub(center2)
-              skirt.position.y += 20 * scale
-              skirt.position.z -= 0.003
-              scene.add(skirt)
+  const createMaterial = (color) => new THREE.MeshPhongMaterial({ color })
 
-              // Load Pants (clothes)
-              loader.load(
-                '/models/pants.obj',
-                function (pants) {
-                  pants.traverse(child => {
-                    if (child.isMesh) {
-                      child.material = new THREE.MeshPhongMaterial({ color: CLOTHES_COLORS[selectedColor.value] })
-                      pantsMeshRef.value = child
-                    }
-                  })
-                  pants.scale.set(scale, scale, scale)
-                  const boxP = new THREE.Box3().setFromObject(pants)
-                  const centerP = boxP.getCenter(new THREE.Vector3())
-                  pants.position.sub(centerP)
-                  pants.position.y += (box.max.y - box.min.y) * -0.16
-                  pants.position.z += 0.00075
-                  scene.add(pants)
-                  pants.visible = false
+  const scaleAndCenter = (object, scaleFactor = 1) => {
+    const box = new THREE.Box3().setFromObject(object)
+    const size = box.getSize(new THREE.Vector3())
+    const scale = (1 / Math.max(size.x, size.y, size.z)) * scaleFactor
+    object.scale.set(scale, scale, scale)
+    const center = box.getCenter(new THREE.Vector3())
+    object.position.sub(center)
+    return scale
+  }
 
-                  // Load TShirt2 (clothes)
-                  loader.load(
-                    '/models/tshirt2.obj',
-                    function (tshirt) {
-                      tshirt.traverse(child => {
-                        if (child.isMesh) {
-                          child.material = new THREE.MeshPhongMaterial({ color: CLOTHES_COLORS[selectedColor.value] })
-                          tshirtMeshRef.value = child
-                        }
-                      })
-                      tshirt.scale.set(scale * 1.12, scale * 1.12, scale * 1.12)
-                      const box3 = new THREE.Box3().setFromObject(tshirt)
-                      const center3 = box3.getCenter(new THREE.Vector3())
-                      tshirt.position.sub(center3)
-                      tshirt.position.y += (box.max.y - box.min.y) * 0.223
-                      tshirt.position.z += 0.01
-                      scene.add(tshirt)
-                      tshirt.visible = showTShirt.value
+  // Завантаження аватара
+  loader.load(
+    `${modelsPath}/avatar.obj`,
+    (avatar) => {
+      avatar.traverse(child => {
+        if (child.isMesh) child.material = createMaterial(0xffdbac)
+      })
+      const avatarScale = scaleAndCenter(avatar)
+      scene.add(avatar)
 
-                      // Load Blouse (if you have blouse.obj)
-                      loader.load(
-                        '/models/blouse.obj',
-                        function (blouse) {
-                          blouse.traverse(child => {
-                            if (child.isMesh) {
-                              child.material = new THREE.MeshPhongMaterial({ color: CLOTHES_COLORS[selectedColor.value] })
-                              blouseMeshRef.value = child
-                            }
-                          })
-                          blouse.scale.set(scale * 1.12, scale * 1.12, scale * 1.12)
-                          const box4 = new THREE.Box3().setFromObject(blouse)
-                          const center4 = box4.getCenter(new THREE.Vector3())
-                          blouse.position.sub(center4)
-                          blouse.position.y += (box.max.y - box.min.y) * 0.245
-                          blouse.position.z += 0.01
-                          scene.add(blouse)
-                          blouse.visible = !showTShirt.value
-                          isLoading.value = false
-                          animate()
-                        },
-                        undefined,
-                        function (error) {
-                          console.error('Error loading blouse.obj:', error)
-                          isLoading.value = false
-                        }
-                      )
-                    },
-                    undefined,
-                    function (error) {
-                      console.error('Error loading tshirt2.obj:', error)
-                      isLoading.value = false
-                    }
-                  )
-                },
-                undefined,
-                function (error) {
-                  console.error('Error loading pants.obj:', error)
-                  isLoading.value = false
-                }
-              )
-            },
-            undefined,
-            function (error) {
-              console.error('Error loading skirt2.obj:', error)
-              isLoading.value = false
-            }
-          )
-        },
-        undefined,
-        function (error) {
-          console.error('Error loading avatar.obj:', error)
-          isLoading.value = false
-        }
-      )
+      // Завантаження одягу
+      const loadClothes = (fileName, meshRef, offsetY = 0, scaleFactor = 1) => {
+        loader.load(
+          `${modelsPath}/${fileName}`,
+          (obj) => {
+            obj.traverse(child => {
+              if (child.isMesh) {
+                child.material = createMaterial(CLOTHES_COLORS[selectedColor.value])
+                meshRef.value = child
+              }
+            })
+            scaleAndCenter(obj, scaleFactor)
+            obj.position.y += offsetY
+            scene.add(obj)
+          },
+          undefined,
+          (err) => console.error(`Error loading ${fileName}:`, err)
+        )
+      }
+
+      loadClothes('skirt2.obj', skirtMeshRef, 0.2, 1.15)
+      loadClothes('pants.obj', pantsMeshRef, -0.05, 1)
+      loadClothes('tshirt2.obj', tshirtMeshRef, 0.22, 1.12)
+      loadClothes('blouse.obj', blouseMeshRef, 0.24, 1.12)
+
+      isLoading.value = false
+      animate()
+    },
+    undefined,
+    (err) => {
+      console.error('Error loading avatar.obj:', err)
+      isLoading.value = false
     }
+  )
+}
+
 
     // Lifecycle hooks
     onMounted(() => {
