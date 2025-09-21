@@ -8,14 +8,57 @@
         <button :class="{active: clothesMode==='bottom'}" @click="clothesMode='bottom'">Bottom</button>
       </div>
       <div class="color-buttons">
-        <button @click="setClothesColor('red')">Red</button>
-        <button @click="setClothesColor('orange')">Orange</button>
-        <button @click="setClothesColor('yellow')">Yellow</button>
-        <button @click="setClothesColor('green')">Green</button>
-        <button @click="setClothesColor('blue')">Blue</button>
-        <button @click="setClothesColor('indigo')">Indigo</button>
-        <button @click="setClothesColor('violet')">Violet</button>
-        <button @click="setClothesColor('grey')">Grey</button>
+        <template v-if="colorotype === 'Літо'">
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('blue')">Blue</button>
+        </template>
+        <template v-else-if="colorotype === 'Весна'">
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('blue')">Blue</button>
+        </template>
+        <template v-else-if="colorotype === 'Зима'">
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('blue')">Blue</button>
+        </template>
+        <template v-else-if="colorotype === 'Осінь'">
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('white')">White</button>
+          <button @click="setClothesColor('blue')">Blue</button>
+        </template>
+        </div>
+        <div class="color-buttons">
+          <template v-if="colorotype === 'Літо'">
+            <button @click="setClothesColor('#E88488')" style="background:#F0F8FF">#F0F8FF</button>
+            <button @click="setClothesColor('#B0C4DE')" style="background:#B0C4DE">#B0C4DE</button>
+            <button @click="setClothesColor('#E6E6FA')" style="background:#E6E6FA">#E6E6FA</button>
+            <button @click="setClothesColor('#6495ED')" style="background:#6495ED">#6495ED</button>
+          </template>
+          <template v-else-if="colorotype === 'Весна'">
+            <button @click="setClothesColor('#FFD700')" style="background:#FFD700">#FFD700</button>
+            <button @click="setClothesColor('#FFB07A')" style="background:#FFB07A">#FFB07A</button>
+            <button @click="setClothesColor('#FFA07A')" style="background:#FFA07A">#FFA07A</button>
+            <button @click="setClothesColor('#F0E68C')" style="background:#F0E68C">#F0E68C</button>
+          </template>
+          <template v-else-if="colorotype === 'Зима'">
+            <button @click="setClothesColor('#000080')" style="background:#000080;color:#fff">#000080</button>
+            <button @click="setClothesColor('#DC143C')" style="background:#DC143C;color:#fff">#DC143C</button>
+            <button @click="setClothesColor('#FFFFFF')" style="background:#FFFFFF">#FFFFFF</button>
+            <button @click="setClothesColor('#4169E1')" style="background:#4169E1;color:#fff">#4169E1</button>
+          </template>
+          <template v-else-if="colorotype === 'Осінь'">
+            <button @click="setClothesColor('#CD853F')" style="background:#CD853F;color:#fff">#CD853F</button>
+            <button @click="setClothesColor('#DAA520')" style="background:#DAA520">#DAA520</button>
+            <button @click="setClothesColor('#B22222')" style="background:#B22222;color:#fff">#B22222</button>
+            <button @click="setClothesColor('#FF6347')" style="background:#FF6347">#FF6347</button>
+          </template>
+        </div>
       </div>
       <div class="switch-buttons">
         <span>
