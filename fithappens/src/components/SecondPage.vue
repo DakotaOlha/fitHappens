@@ -121,7 +121,6 @@
           </div>
         </div>
 
-        <!-- Style Tips -->
         <div class="control-section">
           <h3>Поради стиліста</h3>
           <div class="style-tips">
@@ -132,7 +131,6 @@
         </div>
       </div>
 
-      <!-- 3D Model Section -->
       <div class="model-section">
         <div class="model-container">
           <div class="model-box" ref="modelBox">
@@ -152,7 +150,6 @@
           </div>
         </div>
 
-        <!-- Color Analysis -->
         <div class="color-analysis">
           <h4>Аналіз кольору</h4>
           <div class="analysis-card">
@@ -176,10 +173,45 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import * as THREE from 'three'
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+  import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+  import * as THREE from 'three'
+  import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+
+ const stylistTips = ref([])
+
+  async function fetchStylistTips(colorType) {
+    const prompt = `
+      Ти експерт та відомий стиліст. Надай три поради щодо вибору одягу для людини з кольоротипом ${colorType}. Відповідь надай списком без нумерації
+    `
+    try {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [{ role: "user", content: prompt }],
+        }),
+      })
+      const data = await response.json()
+      const tipsText = data.choices?.[0]?.message?.content || ""
+      stylistTips.value = tipsText.split('\n').filter(Boolean)
+      console.log("Відповідь API:", tipsText)
+    } catch (error) {
+      console.error("Помилка API:", error)
+      stylistTips.value = ["Не вдалося отримати поради."]
+    }
+  }
+
+  onMounted(() => {
+    const colorType = localStorage.getItem("result") || "Весна"
+    fetchStylistTips(colorType)
+  })
+
+
 
 const CLOTHES_COLORS = {
   red: 0xff0000,
@@ -249,7 +281,6 @@ export default {
     }
   },
   setup(props) {
-    // Get color type from various sources
     const getInitialColorType = () => {
       if (props.colorTypeResult) return extractColorTypeFromResult(props.colorTypeResult)
       if (props.userColorType) return props.userColorType
@@ -260,7 +291,6 @@ export default {
       return result || 'Весна'
     }
 
-    // Extract color type from result string
     const extractColorTypeFromResult = (result) => {
       if (!result) return 'Весна'
       
@@ -270,9 +300,8 @@ export default {
       if (resultLower.includes('осінь')) return 'Осінь'
       if (resultLower.includes('зима')) return 'Зима'
       
-      return 'Весна' // default fallback
+      return 'Весна'
     }
-    // Reactive state
     const modelBox = ref(null)
     const isLoading = ref(true)
     const clothesMode = ref('bottom')
@@ -331,6 +360,37 @@ export default {
       recommendedColors.value[selectedColor.value]?.recommended || false
     )
 
+    const stylistTips = ref([])
+
+    async function fetchStylistTips(colorType) {
+      const prompt = `\n        Ти експерт та відомий стиліст. Надай три поради щодо вибору одягу для людини з кольоротипом ${colorType}. Відповідь надай списком без нумерації\n      `
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: prompt }],
+          }),
+        })
+        const data = await response.json()
+        const tipsText = data.choices?.[0]?.message?.content || ""
+        stylistTips.value = tipsText.split('\n').filter(Boolean)
+        console.log("Відповідь API:", tipsText)
+      } catch (error) {
+        console.error("Помилка API:", error)
+        stylistTips.value = ["Не вдалося отримати поради."]
+      }
+    }
+
+    onMounted(() => {
+      fetchStylistTips(selectedColorType.value)
+      init3D()
+    })
+
     // Methods
     const selectColorType = (type) => {
       selectedColorType.value = type
@@ -345,12 +405,12 @@ export default {
         if (pantsMeshRef.value) pantsMeshRef.value.material.color.set(color)
       } else {
         if (tshirtMeshRef.value) tshirtMeshRef.value.material.color.set(color)
-        if (blouseMeshRef.value) blouseMeshRef.value.material.color.set(color)
+        if (blouseMeshRef.value) tshirtMeshRef.value.material.color.set(color)
       }
     }
 
     const getCurrentTips = () => {
-      return COLOR_TYPES[selectedColorType.value]?.tips || []
+      return stylistTips.value.length ? stylistTips.value : (COLOR_TYPES[selectedColorType.value]?.tips || [])
     }
 
     const resetCamera = () => {
@@ -378,23 +438,24 @@ export default {
       if (skirtMeshRef.value) skirtMeshRef.value.parent.visible = showSkirt.value
       if (pantsMeshRef.value) pantsMeshRef.value.parent.visible = !showSkirt.value
       if (tshirtMeshRef.value) tshirtMeshRef.value.parent.visible = showTShirt.value
-      if (blouseMeshRef.value) blouseMeshRef.value.parent.visible = !showTShirt.value
+      if (blouseMeshRef.value) tshirtMeshRef.value.parent.visible = !showTShirt.value
       
       if (controls) controls.update()
       if (renderer && scene && camera) renderer.render(scene, camera)
     }
 
-    // Initialize 3D scene (ORIGINAL SETTINGS)
+    // Initialize 3D scene (UPDATED SETTINGS)
     const init3D = () => {
       if (!modelBox.value) return
 
       scene = new THREE.Scene()
-      camera = new THREE.PerspectiveCamera(75, 350/350, 0.1, 1000)
+      camera = new THREE.PerspectiveCamera(75, modelBox.value.clientWidth / modelBox.value.clientHeight, 0.1, 1000)
       camera.position.z = 2
 
       renderer = new THREE.WebGLRenderer({ antialias: true })
-      renderer.setSize(350, 350)
+      renderer.setSize(modelBox.value.clientWidth, modelBox.value.clientHeight)
       renderer.setClearColor(0xf0f0f0)
+      modelBox.value.innerHTML = '' // Очищаємо контейнер перед додаванням
       modelBox.value.appendChild(renderer.domElement)
 
       controls = new OrbitControls(camera, renderer.domElement)
@@ -597,9 +658,13 @@ export default {
       setClothesColor,
       getCurrentTips,
       resetCamera,
-      toggleWireframe
+      toggleWireframe,
+      stylistTips,
+      fetchStylistTips
     }
   }
+
+
 }
 </script>
 
