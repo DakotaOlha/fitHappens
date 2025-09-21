@@ -419,9 +419,8 @@ export default {
     const loadModels = () => {
       const loader = new OBJLoader()
       
-      // Load Avatar (mannequin) - ORIGINAL CODE
       loader.load(
-        'src/assets/models/avatar.obj',
+        '/models/avatar.obj',
         function (avatar) {
           avatar.traverse(child => {
             if (child.isMesh) {
@@ -440,7 +439,7 @@ export default {
 
           // Load Skirt2 (clothes)
           loader.load(
-            'src/assets/models/skirt2.obj',
+            '/models/skirt2.obj',
             function (skirt) {
               skirt.traverse(child => {
                 if (child.isMesh) {
@@ -458,7 +457,7 @@ export default {
 
               // Load Pants (clothes)
               loader.load(
-                'src/assets/models/pants.obj',
+                '/models/pants.obj',
                 function (pants) {
                   pants.traverse(child => {
                     if (child.isMesh) {
@@ -477,7 +476,7 @@ export default {
 
                   // Load TShirt2 (clothes)
                   loader.load(
-                    'src/assets/models/tshirt2.obj',
+                    '/models/tshirt2.obj',
                     function (tshirt) {
                       tshirt.traverse(child => {
                         if (child.isMesh) {
@@ -496,7 +495,7 @@ export default {
 
                       // Load Blouse (if you have blouse.obj)
                       loader.load(
-                        'src/assets/models/blouse.obj',
+                        '/models/blouse.obj',
                         function (blouse) {
                           blouse.traverse(child => {
                             if (child.isMesh) {
