@@ -89,14 +89,17 @@ export default {
       modelBox.value.appendChild(renderer.domElement);
 
       const controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
-      controls.enablePan = false;
-      controls.screenSpacePanning = false;
-      controls.minDistance = 0.5;
-      controls.maxDistance = 10;
-      controls.target.set(0, 0, 0);
-      controls.update();
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.enablePan = false;
+  controls.screenSpacePanning = false;
+  controls.minDistance = 0.5;
+  controls.maxDistance = 10;
+  controls.target.set(0, 0, 0);
+  // Lock vertical movement
+  controls.minPolarAngle = Math.PI / 2;
+  controls.maxPolarAngle = Math.PI / 2;
+  controls.update();
 
       const light = new THREE.DirectionalLight(0xffffff, 1);
   light.position.set(1, 1, 1).normalize();
