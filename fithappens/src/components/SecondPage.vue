@@ -246,6 +246,11 @@ export default {
 </script>
 
 <style scoped>
+
+body {
+  background: #dce9ef !important;
+}
+
 .second-page-container {
   display: flex;
   flex-direction: row;
