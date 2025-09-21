@@ -7,32 +7,6 @@
         <button :class="{active: clothesMode==='top'}" @click="clothesMode='top'">Top</button>
         <button :class="{active: clothesMode==='bottom'}" @click="clothesMode='bottom'">Bottom</button>
       </div>
-      <div class="color-buttons">
-        <template v-if="colorotype === 'Літо'">
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('blue')">Blue</button>
-        </template>
-        <template v-else-if="colorotype === 'Весна'">
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('blue')">Blue</button>
-        </template>
-        <template v-else-if="colorotype === 'Зима'">
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('blue')">Blue</button>
-        </template>
-        <template v-else-if="colorotype === 'Осінь'">
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('white')">White</button>
-          <button @click="setClothesColor('blue')">Blue</button>
-        </template>
-        </div>
         <div class="color-buttons">
           <template v-if="colorotype === 'Літо'">
             <button @click="setClothesColor('#E88488')" style="background:#E88488">#E88488</button>
@@ -56,9 +30,9 @@
             <button @click="setClothesColor('#FFF500')" style="background:#FFF500">#FFF500</button>
             <button @click="setClothesColor('#E77843')" style="background:#E77843">#E77843</button>
             <button @click="setClothesColor('#DC332E')" style="background:#DC332E;color:#fff">#DC332E</button>
-            <button @click="setClothesColor('#CODD71')" style="background:#CODD71">#CODD71</button>
+          <button @click="setClothesColor('#679B37')" style="background:#679B37">#679B37</button>
           </template>
-        </div>
+  <!-- end color-buttons block -->
       </div>
       <div class="switch-buttons">
         <span>
@@ -109,40 +83,41 @@ export default {
   const showSkirt = ref(true);
   const showTShirt = ref(true);
   const clothesMode = ref('bottom');
+  const colorotype = ref(result);
 
-    function setClothesColor(colorName) {
-      clothesColor.value = CLOTHES_COLORS[colorName];
+    function setClothesColor(colorHex) {
+      clothesColor.value = colorHex;
       if (clothesMode.value === 'bottom') {
-        if (skirtMeshRef.value) skirtMeshRef.value.material.color.set(clothesColor.value);
-        if (pantsMeshRef.value) pantsMeshRef.value.material.color.set(clothesColor.value);
+        if (skirtMeshRef.value) skirtMeshRef.value.material.color.set(colorHex);
+        if (pantsMeshRef.value) pantsMeshRef.value.material.color.set(colorHex);
       } else {
-        if (tshirtMeshRef.value) tshirtMeshRef.value.material.color.set(clothesColor.value);
-        if (blouseMeshRef.value) blouseMeshRef.value.material.color.set(clothesColor.value);
+        if (tshirtMeshRef.value) tshirtMeshRef.value.material.color.set(colorHex);
+        if (blouseMeshRef.value) blouseMeshRef.value.material.color.set(colorHex);
       }
     }
 
     onMounted(() => {
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, 350/350, 0.1, 1000);
-      camera.position.z = 2;
+  const camera = new THREE.PerspectiveCamera(75, 350/350, 0.1, 1000);
+  camera.position.z = 0.8; // Zoom in closer
 
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(350, 350);
       renderer.setClearColor(0xf0f0f0);
       modelBox.value.appendChild(renderer.domElement);
 
-      const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.enablePan = false;
-  controls.screenSpacePanning = false;
-  controls.minDistance = 0.5;
-  controls.maxDistance = 10;
-  controls.target.set(0, 0, 0);
-  controls.minPolarAngle = Math.PI / 2;
-  // Lock vertical movement ghjg
-  controls.maxPolarAngle = Math.PI / 2;
-  controls.update();
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enablePan = false;
+    controls.screenSpacePanning = false;
+    controls.minDistance = camera.position.z;
+    controls.maxDistance = camera.position.z;
+    controls.enableZoom = false;
+    controls.target.set(0, 0, 0);
+    controls.minPolarAngle = Math.PI / 2;
+    controls.maxPolarAngle = Math.PI / 2;
+    controls.update();
 
       const light = new THREE.DirectionalLight(0xffffff, 1);
   light.position.set(1, 1, 1).normalize();
@@ -286,7 +261,7 @@ export default {
       }
     });
 
-  return { modelBox, setClothesColor, showSkirt, showTShirt, clothesMode };
+  return { modelBox, setClothesColor, showSkirt, showTShirt, clothesMode, colorotype };
   }
 };
 </script>
