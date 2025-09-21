@@ -444,18 +444,17 @@ export default {
       if (renderer && scene && camera) renderer.render(scene, camera)
     }
 
-    // Initialize 3D scene (UPDATED SETTINGS)
+    // Initialize 3D scene (ORIGINAL SETTINGS)
     const init3D = () => {
       if (!modelBox.value) return
 
       scene = new THREE.Scene()
-      camera = new THREE.PerspectiveCamera(75, modelBox.value.clientWidth / modelBox.value.clientHeight, 0.1, 1000)
+      camera = new THREE.PerspectiveCamera(75, 350/350, 0.1, 1000)
       camera.position.z = 2
 
       renderer = new THREE.WebGLRenderer({ antialias: true })
-      renderer.setSize(modelBox.value.clientWidth, modelBox.value.clientHeight)
+      renderer.setSize(350, 350)
       renderer.setClearColor(0xf0f0f0)
-      modelBox.value.innerHTML = '' // Очищаємо контейнер перед додаванням
       modelBox.value.appendChild(renderer.domElement)
 
       controls = new OrbitControls(camera, renderer.domElement)
@@ -482,7 +481,7 @@ export default {
       
       // Load Avatar (mannequin) - ORIGINAL CODE
       loader.load(
-        '/models/avatar.obj',
+        'src/assets/models/avatar.obj',
         function (avatar) {
           avatar.traverse(child => {
             if (child.isMesh) {
@@ -501,7 +500,7 @@ export default {
 
           // Load Skirt2 (clothes)
           loader.load(
-            '/models/skirt2.obj',
+            'src/assets/models/skirt2.obj',
             function (skirt) {
               skirt.traverse(child => {
                 if (child.isMesh) {
@@ -519,7 +518,7 @@ export default {
 
               // Load Pants (clothes)
               loader.load(
-                '/models/pants.obj',
+                'src/assets/models/pants.obj',
                 function (pants) {
                   pants.traverse(child => {
                     if (child.isMesh) {
@@ -538,7 +537,7 @@ export default {
 
                   // Load TShirt2 (clothes)
                   loader.load(
-                    '/models/tshirt2.obj',
+                    'src/assets/models/tshirt2.obj',
                     function (tshirt) {
                       tshirt.traverse(child => {
                         if (child.isMesh) {
@@ -557,7 +556,7 @@ export default {
 
                       // Load Blouse (if you have blouse.obj)
                       loader.load(
-                        '/models/blouse.obj',
+                        'src/assets/models/blouse.obj',
                         function (blouse) {
                           blouse.traverse(child => {
                             if (child.isMesh) {
