@@ -25,7 +25,7 @@
           <button class="cta-button" @click="scrollTo('color-types')">Дізнатися більше</button>
         </div>
         <div class="hero-image">
-          <div class="person-silhouette"></div>
+            <img src="../assets/person.png" alt="Person" class="person-img" />
         </div>
       </div>
     </section>
@@ -68,7 +68,7 @@
           </div>
         </div>
         <div style="text-align: center;">
-          <button class="cta-button" @click="takeTest">Пройти тест на кольоротип</button>
+          <button class="cta-button" @click.prevent="$router.push('/test')">Пройти тест на кольоротип</button>
         </div>
       </div>
     </section>
@@ -225,9 +225,6 @@ function scrollTo(elementId) {
   }
 }
 
-function takeTest() {
-  alert('Функція тесту буде додана в наступній версії! 🎨')
-}
 </script>
 
 <style scoped>
@@ -319,7 +316,7 @@ body {
 .hero-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 3rem;
+  padding: 0 4rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
@@ -352,6 +349,16 @@ body {
   animation: slideInRight 1s ease 0.9s forwards;
 }
 
+.person-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: auto;
+  pointer-events: none;
+}
+
 .person-silhouette {
   width: 300px;
   height: 400px;
@@ -363,7 +370,6 @@ body {
 }
 
 .person-silhouette::before {
-  content: '👤';
   position: absolute;
   top: 50%;
   left: 50%;

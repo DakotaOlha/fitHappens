@@ -1,8 +1,7 @@
 <template>
   <div class="second-page-container">
     <div class="content">
-      <h1>Second Page</h1>
-      <router-link to="/">Go to Home Page</router-link>
+      <h1>Підбір одягу по кольоротипу</h1>
       <div style="margin-bottom: 16px;">
         <label style="font-weight: bold; margin-right: 12px;">Change:</label>
         <button :class="{active: clothesMode==='top'}" @click="clothesMode='top'">Top</button>
@@ -30,7 +29,7 @@
       </div>
     </div>
     <div class="model-box" ref="modelBox">
-      <!-- 3D models will be rendered here -->
+
     </div>
   </div>
 </template>
@@ -51,6 +50,9 @@ const CLOTHES_COLORS = {
   violet: 0x8e24aa,
   grey: 0x888888
 };
+
+const result = localStorage.getItem("result");
+console.log("Збережений результат:", result);
 
 export default {
   name: 'SecondPage',
@@ -247,7 +249,9 @@ export default {
 </script>
 
 <style scoped>
+
 .second-page-container {
+  background: #dce9ef;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
