@@ -24,7 +24,6 @@
     <div v-if="result" class="result">
       <h3>Ваш кольоротип:</h3>
       <p>{{ result }}</p>
-
       <button class="next-btn" @click="goToExamples">
         Перейти до примірок
       </button>
@@ -73,6 +72,7 @@ async function getColorType() {
 
     const data = await response.json();
     console.log("Відповідь API:", data);
+    localStorage.setItem("result", data.choices[0].message.content.trim());
 
     if (data.choices && data.choices.length > 0) {
       result.value = data.choices[0].message.content.trim();
