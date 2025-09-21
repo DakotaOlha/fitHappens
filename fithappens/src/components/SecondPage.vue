@@ -96,8 +96,8 @@ export default {
   controls.minDistance = 0.5;
   controls.maxDistance = 10;
   controls.target.set(0, 0, 0);
-  // Lock vertical movement
   controls.minPolarAngle = Math.PI / 2;
+  // Lock vertical movement ghjg
   controls.maxPolarAngle = Math.PI / 2;
   controls.update();
 
