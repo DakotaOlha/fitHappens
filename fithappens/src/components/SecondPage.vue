@@ -250,11 +250,8 @@ export default {
 
 <style scoped>
 
-body {
-  background: #dce9ef !important;
-}
-
 .second-page-container {
+  background: #dce9ef;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
