@@ -140,6 +140,10 @@
               <div class="loading-spinner"></div>
               <p>Завантаження моделі...</p>
             </div>
+            <div v-if="loadError" class="error-overlay">
+              <p>❌ Помилка завантаження моделей</p>
+              <small>{{ loadError }}</small>
+            </div>
           </div>
           
           <div class="model-controls">
@@ -231,11 +235,6 @@ const COLOR_TYPES = {
   }
 }
 
-const result = localStorage.getItem("result")
-const getStoredColorType = () => {
-  return result;
-}
-
 export default {
   name: 'OutfitSelector',
   props: {
@@ -257,7 +256,7 @@ export default {
       const result = localStorage.getItem("result")
       if (result) return extractColorTypeFromResult(result)
       
-      return result || 'Весна'
+      return 'Весна'
     }
 
     // Extract color type from result string
@@ -270,19 +269,19 @@ export default {
       if (resultLower.includes('осінь')) return 'Осінь'
       if (resultLower.includes('зима')) return 'Зима'
       
-      return 'Весна' // default fallback
+      return 'Весна'
     }
+
     // Reactive state
     const modelBox = ref(null)
     const isLoading = ref(true)
+    const loadError = ref(null)
     const clothesMode = ref('bottom')
     const showSkirt = ref(true)
     const showTShirt = ref(true)
     const selectedColor = ref('grey')
     const selectedColorType = ref(getInitialColorType())
     const wireframe = ref(false)
-
-    // Store the result for display
     const colorTypeResult = ref(props.colorTypeResult || '')
 
     // 3D Model references
@@ -363,8 +362,7 @@ export default {
 
     const toggleWireframe = () => {
       wireframe.value = !wireframe.value
-      // Apply to all meshes
-      ;[skirtMeshRef.value, pantsMeshRef.value, tshirtMeshRef.value, blouseMeshRef.value].forEach(mesh => {
+      [skirtMeshRef.value, pantsMeshRef.value, tshirtMeshRef.value, blouseMeshRef.value].forEach(mesh => {
         if (mesh && mesh.material) {
           mesh.material.wireframe = wireframe.value
         }
@@ -374,7 +372,6 @@ export default {
     const animate = () => {
       animationId = requestAnimationFrame(animate)
       
-      // Update visibility
       if (skirtMeshRef.value) skirtMeshRef.value.parent.visible = showSkirt.value
       if (pantsMeshRef.value) pantsMeshRef.value.parent.visible = !showSkirt.value
       if (tshirtMeshRef.value) tshirtMeshRef.value.parent.visible = showTShirt.value
@@ -384,7 +381,7 @@ export default {
       if (renderer && scene && camera) renderer.render(scene, camera)
     }
 
-    // Initialize 3D scene (ORIGINAL SETTINGS)
+    // Initialize 3D scene
     const init3D = () => {
       if (!modelBox.value) return
 
@@ -416,18 +413,19 @@ export default {
       loadModels()
     }
 
+    // КРИТИЧНО: Правильні шляхи для Vercel (з public папки)
     const loadModels = () => {
       const loader = new OBJLoader()
       
+      // Шлях від public/ - Vercel автоматично сервує з цієї папки
       loader.load(
-        'src/assets/models/avatar.obj',
+        '/models/avatar.obj', // ⭐ ЗМІНЕНО: був 'src/assets/models/avatar.obj'
         function (avatar) {
           avatar.traverse(child => {
             if (child.isMesh) {
-              child.material = new THREE.MeshPhongMaterial({ color: 0xffdbac }) // skin color
+              child.material = new THREE.MeshPhongMaterial({ color: 0xffdbac })
             }
           })
-          // Center and scale avatar
           const box = new THREE.Box3().setFromObject(avatar)
           const size = box.getSize(new THREE.Vector3())
           const scale = 1 / Math.max(size.x, size.y, size.z)
@@ -437,9 +435,8 @@ export default {
           avatar.position.sub(center)
           scene.add(avatar)
 
-          // Load Skirt2 (clothes)
           loader.load(
-            'src/assets/models/skirt2.obj',
+            '/models/skirt2.obj', // ⭐ ЗМІНЕНО
             function (skirt) {
               skirt.traverse(child => {
                 if (child.isMesh) {
@@ -455,9 +452,8 @@ export default {
               skirt.position.z -= 0.003
               scene.add(skirt)
 
-              // Load Pants (clothes)
               loader.load(
-                'src/assets/models/pants.obj',
+                '/models/pants.obj', // ⭐ ЗМІНЕНО
                 function (pants) {
                   pants.traverse(child => {
                     if (child.isMesh) {
@@ -474,9 +470,8 @@ export default {
                   scene.add(pants)
                   pants.visible = false
 
-                  // Load TShirt2 (clothes)
                   loader.load(
-                    'src/assets/models/tshirt2.obj',
+                    '/models/tshirt2.obj', // ⭐ ЗМІНЕНО
                     function (tshirt) {
                       tshirt.traverse(child => {
                         if (child.isMesh) {
@@ -493,9 +488,8 @@ export default {
                       scene.add(tshirt)
                       tshirt.visible = showTShirt.value
 
-                      // Load Blouse (if you have blouse.obj)
                       loader.load(
-                        'src/assets/models/blouse.obj',
+                        '/models/blouse.obj', // ⭐ ЗМІНЕНО
                         function (blouse) {
                           blouse.traverse(child => {
                             if (child.isMesh) {
@@ -517,6 +511,7 @@ export default {
                         undefined,
                         function (error) {
                           console.error('Error loading blouse.obj:', error)
+                          loadError.value = 'Не вдалося завантажити blouse.obj'
                           isLoading.value = false
                         }
                       )
@@ -524,6 +519,7 @@ export default {
                     undefined,
                     function (error) {
                       console.error('Error loading tshirt2.obj:', error)
+                      loadError.value = 'Не вдалося завантажити tshirt2.obj'
                       isLoading.value = false
                     }
                   )
@@ -531,6 +527,7 @@ export default {
                 undefined,
                 function (error) {
                   console.error('Error loading pants.obj:', error)
+                  loadError.value = 'Не вдалося завантажити pants.obj'
                   isLoading.value = false
                 }
               )
@@ -538,6 +535,7 @@ export default {
             undefined,
             function (error) {
               console.error('Error loading skirt2.obj:', error)
+              loadError.value = 'Не вдалося завантажити skirt2.obj'
               isLoading.value = false
             }
           )
@@ -545,6 +543,7 @@ export default {
         undefined,
         function (error) {
           console.error('Error loading avatar.obj:', error)
+          loadError.value = 'Не вдалося завантажити avatar.obj'
           isLoading.value = false
         }
       )
@@ -578,6 +577,7 @@ export default {
     return {
       modelBox,
       isLoading,
+      loadError,
       clothesMode,
       showSkirt,
       showTShirt,
@@ -827,12 +827,18 @@ export default {
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.loading-overlay {
+.loading-overlay, .error-overlay {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 15px;
   color: #667eea;
+  text-align: center;
+  padding: 20px;
+}
+
+.error-overlay {
+  color: #e53e3e;
 }
 
 .loading-spinner {
