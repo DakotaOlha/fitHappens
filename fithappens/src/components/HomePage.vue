@@ -3,14 +3,23 @@
     <!-- Header -->
     <header class="header">
       <div class="nav-container">
-        <img src="../assets/logo.png" alt="ColorStyle Logo" style="height:60px;vertical-align:middle;margin-right:10px;" />
-        <nav>
+        <img src="../assets/logo.png" alt="ColorStyle Logo" class="logo-img" />
+        
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" @click="toggleMobileMenu" aria-label="Menu">
+          <span :class="{ open: mobileMenuOpen }"></span>
+          <span :class="{ open: mobileMenuOpen }"></span>
+          <span :class="{ open: mobileMenuOpen }"></span>
+        </button>
+
+        <!-- Navigation -->
+        <nav :class="{ 'mobile-open': mobileMenuOpen }">
           <ul class="nav-menu">
-            <li><a href="#home" class="nav-link" @click.prevent="scrollTo('home')">Головна</a></li>
-            <li><a href="#about" class="nav-link" @click.prevent="scrollTo('about')">Про нас</a></li>
-            <li><a href="#color-types" class="nav-link" @click.prevent="scrollTo('color-types')">Кольоротипи</a></li>
-            <li><a href="#reviews" class="nav-link" @click.prevent="scrollTo('reviews')">Відгуки</a></li>
-            <li><a href="#contact" class="nav-link" @click.prevent="scrollTo('contact')">Контакти</a></li>
+            <li><a href="#home" class="nav-link" @click.prevent="scrollToSection('home')">Головна</a></li>
+            <li><a href="#about" class="nav-link" @click.prevent="scrollToSection('about')">Про нас</a></li>
+            <li><a href="#color-types" class="nav-link" @click.prevent="scrollToSection('color-types')">Кольоротипи</a></li>
+            <li><a href="#reviews" class="nav-link" @click.prevent="scrollToSection('reviews')">Відгуки</a></li>
+            <li><a href="#contact" class="nav-link" @click.prevent="scrollToSection('contact')">Контакти</a></li>
           </ul>
         </nav>
       </div>
@@ -22,10 +31,10 @@
         <div class="hero-content">
           <h1>Знайди свій ідеальний стиль</h1>
           <p>Відкрий для себе одяг, який підкреслить твою природну красу за допомогою визначення кольоротипу. Персональний підбір від професійних стилістів.</p>
-          <button class="cta-button" @click="scrollTo('color-types')">Дізнатися більше</button>
+          <button class="cta-button" @click="scrollToSection('color-types')">Дізнатися більше</button>
         </div>
         <div class="hero-image">
-            <img src="../assets/person.png" alt="Person" class="person-img" />
+          <img src="../assets/person.png" alt="Person" class="person-img" />
         </div>
       </div>
     </section>
@@ -102,7 +111,7 @@
           </div>
           <div class="footer-section">
             <h4>Контакти</h4>
-              <p>📧 <a href="#" @click.prevent="$router.push('/second')">info@fithappens.ua</a></p>
+            <p>📧 <a href="#" @click.prevent="$router.push('/second')">info@fithappens.ua</a></p>
             <p>📞 +38 (050) 123-45-67</p>
             <p>📍 м. Київ, вул. Модна, 15</p>
           </div>
@@ -133,6 +142,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 const currentSlide = ref(0)
 const currentReview = ref(0)
+const mobileMenuOpen = ref(false)
 
 const colorTypes = ref([
   {
@@ -170,7 +180,7 @@ const reviews = ref([
     text: "Дякую FitHappens за неймовірну трансформацію! Тепер я точно знаю, які кольори мені підходять, і отримую компліменти щодня. Рекомендую всім!",
     author: "Олена К."
   },
-   {
+  {
     text: "Вау! Просто вау! Це неймовірно. Після використання рекомендацій від FitHappens, мій гардероб став справжнім витвором мистецтва. Дякую за професіоналізм!",
     author: "Вікторія Перемога"
   },
@@ -188,22 +198,18 @@ const reviews = ref([
   }
 ])
 
-// Auto-rotate carousels
 let slideInterval
 let reviewInterval
 
 onMounted(() => {
-  // Auto-rotate color types carousel
   slideInterval = setInterval(() => {
     currentSlide.value = (currentSlide.value + 1) % colorTypes.value.length
   }, 5000)
 
-  // Auto-rotate reviews carousel
   reviewInterval = setInterval(() => {
     currentReview.value = (currentReview.value + 1) % reviews.value.length
   }, 4000)
 
-  // Smooth scroll observer
   const observeElements = document.querySelectorAll('.section')
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -216,19 +222,22 @@ onMounted(() => {
   observeElements.forEach(el => observer.observe(el))
 })
 
-// Clean up intervals when component is unmounted
 onUnmounted(() => {
   clearInterval(slideInterval)
   clearInterval(reviewInterval)
 })
 
-function scrollTo(elementId) {
+function scrollToSection(elementId) {
   const element = document.getElementById(elementId)
   if (element) {
     element.scrollIntoView({ behavior: 'smooth' })
+    mobileMenuOpen.value = false
   }
 }
 
+function toggleMobileMenu() {
+  mobileMenuOpen.value = !mobileMenuOpen.value
+}
 </script>
 
 <style scoped>
@@ -237,8 +246,6 @@ function scrollTo(elementId) {
   padding: 0;
   box-sizing: border-box;
 }
-
-
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -258,30 +265,60 @@ body {
   backdrop-filter: blur(20px);
   padding: 1rem 0;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.logo-img {
+  height: 50px;
+  vertical-align: middle;
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  z-index: 1001;
+}
+
+.mobile-menu-btn span {
+  width: 25px;
+  height: 3px;
+  background: #00356a;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-btn span.open:nth-child(1) {
+  transform: rotate(45deg) translate(7px, 7px);
+}
+
+.mobile-menu-btn span.open:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-btn span.open:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
 }
 
 .nav-menu {
   display: flex;
   list-style: none;
   gap: 2rem;
+  align-items: center;
 }
 
 .nav-link {
@@ -290,6 +327,7 @@ body {
   font-weight: 500;
   transition: color 0.3s ease;
   cursor: pointer;
+  font-size: 1rem;
 }
 
 .nav-link:hover {
@@ -305,32 +343,23 @@ body {
   color: white;
   position: relative;
   overflow: hidden;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="3" fill="rgba(255,255,255,0.05)"/><circle cx="40" cy="70" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+  padding-top: 80px;
 }
 
 .hero-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 4rem;
+  padding: 2rem 1.5rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  gap: 3rem;
   align-items: center;
   position: relative;
   z-index: 1;
 }
 
 .hero-content h1 {
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 800;
   margin-bottom: 1.5rem;
   opacity: 0;
@@ -338,11 +367,11 @@ body {
 }
 
 .hero-content p {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin-bottom: 2rem;
   opacity: 0.9;
-  opacity: 0;
   animation: slideInLeft 1s ease 0.6s forwards;
+  line-height: 1.8;
 }
 
 .hero-image {
@@ -354,32 +383,10 @@ body {
 }
 
 .person-img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
   height: auto;
-  pointer-events: none;
-}
-
-.person-silhouette {
-  width: 300px;
-  height: 400px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  position: relative;
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-.person-silhouette::before {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 8rem;
-  opacity: 0.3;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
 }
 
 /* Section Styles */
@@ -390,7 +397,7 @@ body {
 .section-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
 }
 
 .section-title {
@@ -442,7 +449,7 @@ body {
 
 .color-type-card {
   min-width: 100%;
-  padding: 3rem;
+  padding: 3rem 2rem;
   text-align: center;
   background: linear-gradient(135deg, var(--bg-color), var(--bg-color-dark));
   color: white;
@@ -457,7 +464,8 @@ body {
   font-size: 1.1rem;
   opacity: 0.9;
   max-width: 600px;
-  margin: 0 auto;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
 }
 
 .color-palette {
@@ -465,6 +473,7 @@ body {
   justify-content: center;
   gap: 1rem;
   margin: 2rem 0;
+  flex-wrap: wrap;
 }
 
 .color-dot {
@@ -512,6 +521,7 @@ body {
 
 .cta-button:hover {
   transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
 }
 
 /* Reviews Section */
@@ -561,7 +571,7 @@ body {
 
 .footer-content {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 2rem;
   margin-bottom: 2rem;
 }
@@ -572,10 +582,13 @@ body {
   color: #667eea;
 }
 
-.footer-section p, .footer-section a {
+.footer-section p,
+.footer-section a {
   color: #a0aec0;
   text-decoration: none;
-  line-height: 1.6;
+  line-height: 1.8;
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
 .footer-section a:hover {
@@ -627,33 +640,233 @@ body {
   animation: fadeInUp 0.8s ease forwards;
 }
 
-/* Responsive */
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Tablets (768px and below) */
 @media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    transition: right 0.3s ease;
+    padding-top: 80px;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+  }
+
+  nav.mobile-open {
+    right: 0;
+  }
+
+  .nav-menu {
+    flex-direction: column;
+    gap: 0;
+    padding: 2rem;
+  }
+
+  .nav-menu li {
+    width: 100%;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 1rem 0;
+    font-size: 1.1rem;
+  }
+
   .hero-container {
     grid-template-columns: 1fr;
     text-align: center;
     gap: 2rem;
+    padding-top: 2rem;
   }
 
   .hero-content h1 {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
   }
 
-  .nav-menu {
-    display: none;
+  .hero-content p {
+    font-size: 1rem;
+  }
+
+  .hero-image {
+    order: -1;
+  }
+
+  .person-img {
+    max-width: 250px;
+  }
+
+  .section {
+    padding: 3rem 0;
   }
 
   .section-title {
     font-size: 2rem;
   }
 
-  .person-silhouette {
-    width: 200px;
-    height: 300px;
+  .about-content {
+    font-size: 1rem;
   }
 
-  .person-silhouette::before {
-    font-size: 5rem;
+  .color-type-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .color-type-card h3 {
+    font-size: 1.6rem;
+  }
+
+  .color-type-card p {
+    font-size: 1rem;
+  }
+
+  .color-dot {
+    width: 35px;
+    height: 35px;
+  }
+
+  .review-card {
+    padding: 1.5rem;
+    margin: 0 0.5rem;
+  }
+
+  .review-text {
+    font-size: 1rem;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .cta-button {
+    padding: 0.9rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  .logo-img {
+    height: 40px;
+  }
+
+  nav {
+    width: 85%;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-top: 70px;
+    padding-bottom: 2rem;
+  }
+
+  .hero-content h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-content p {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .person-img {
+    max-width: 200px;
+  }
+
+  .section {
+    padding: 2.5rem 0;
+  }
+
+  .section-container {
+    padding: 0 1rem;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
+  }
+
+  .about-content {
+    font-size: 0.95rem;
+  }
+
+  .color-type-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .color-type-card h3 {
+    font-size: 1.4rem;
+  }
+
+  .color-type-card p {
+    font-size: 0.95rem;
+  }
+
+  .color-palette {
+    gap: 0.7rem;
+  }
+
+  .color-dot {
+    width: 30px;
+    height: 30px;
+  }
+
+  .review-card {
+    padding: 1.2rem;
+  }
+
+  .review-text {
+    font-size: 0.95rem;
+  }
+
+  .stars {
+    font-size: 1rem;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .footer-section h4 {
+    font-size: 1.1rem;
+  }
+
+  .footer-section p,
+  .footer-section a {
+    font-size: 0.9rem;
+  }
+
+  .cta-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.95rem;
+    width: 100%;
+  }
+}
+
+/* Extra small devices (360px and below) */
+@media (max-width: 360px) {
+  .hero-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+  }
+
+  .color-type-card h3 {
+    font-size: 1.2rem;
   }
 }
 </style>
