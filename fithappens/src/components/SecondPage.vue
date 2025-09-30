@@ -248,7 +248,6 @@ export default {
     }
   },
   setup(props) {
-    // Get color type from various sources
     const getInitialColorType = () => {
       if (props.colorTypeResult) return extractColorTypeFromResult(props.colorTypeResult)
       if (props.userColorType) return props.userColorType
@@ -259,7 +258,6 @@ export default {
       return 'Весна'
     }
 
-    // Extract color type from result string
     const extractColorTypeFromResult = (result) => {
       if (!result) return 'Весна'
       
@@ -272,7 +270,6 @@ export default {
       return 'Весна'
     }
 
-    // Reactive state
     const modelBox = ref(null)
     const isLoading = ref(true)
     const loadError = ref(null)
@@ -284,16 +281,13 @@ export default {
     const wireframe = ref(false)
     const colorTypeResult = ref(props.colorTypeResult || '')
 
-    // 3D Model references
     const skirtMeshRef = ref(null)
     const pantsMeshRef = ref(null)
     const tshirtMeshRef = ref(null)
     const blouseMeshRef = ref(null)
     
-    // Three.js objects
     let scene, camera, renderer, controls, animationId
 
-    // Computed properties
     const colorType = computed(() => selectedColorType.value)
     
     const displayResult = computed(() => {
@@ -330,7 +324,6 @@ export default {
       recommendedColors.value[selectedColor.value]?.recommended || false
     )
 
-    // Methods
     const selectColorType = (type) => {
       selectedColorType.value = type
     }
@@ -381,16 +374,16 @@ export default {
       if (renderer && scene && camera) renderer.render(scene, camera)
     }
 
-    // Initialize 3D scene
     const init3D = () => {
       if (!modelBox.value) return
 
       scene = new THREE.Scene()
-      camera = new THREE.PerspectiveCamera(75, 350/350, 0.1, 1000)
+      camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
       camera.position.z = 2
 
       renderer = new THREE.WebGLRenderer({ antialias: true })
-      renderer.setSize(350, 350)
+      const size = Math.min(modelBox.value.clientWidth, 350)
+      renderer.setSize(size, size)
       renderer.setClearColor(0xf0f0f0)
       modelBox.value.appendChild(renderer.domElement)
 
@@ -413,13 +406,11 @@ export default {
       loadModels()
     }
 
-    // КРИТИЧНО: Правильні шляхи для Vercel (з public папки)
     const loadModels = () => {
       const loader = new OBJLoader()
       
-      // Шлях від public/ - Vercel автоматично сервує з цієї папки
       loader.load(
-        '/models/avatar.obj', // ⭐ ЗМІНЕНО: був 'src/assets/models/avatar.obj'
+        '/models/avatar.obj',
         function (avatar) {
           avatar.traverse(child => {
             if (child.isMesh) {
@@ -436,7 +427,7 @@ export default {
           scene.add(avatar)
 
           loader.load(
-            '/models/skirt2.obj', // ⭐ ЗМІНЕНО
+            '/models/skirt2.obj',
             function (skirt) {
               skirt.traverse(child => {
                 if (child.isMesh) {
@@ -453,7 +444,7 @@ export default {
               scene.add(skirt)
 
               loader.load(
-                '/models/pants.obj', // ⭐ ЗМІНЕНО
+                '/models/pants.obj',
                 function (pants) {
                   pants.traverse(child => {
                     if (child.isMesh) {
@@ -471,7 +462,7 @@ export default {
                   pants.visible = false
 
                   loader.load(
-                    '/models/tshirt2.obj', // ⭐ ЗМІНЕНО
+                    '/models/tshirt2.obj',
                     function (tshirt) {
                       tshirt.traverse(child => {
                         if (child.isMesh) {
@@ -489,7 +480,7 @@ export default {
                       tshirt.visible = showTShirt.value
 
                       loader.load(
-                        '/models/blouse.obj', // ⭐ ЗМІНЕНО
+                        '/models/blouse.obj',
                         function (blouse) {
                           blouse.traverse(child => {
                             if (child.isMesh) {
@@ -549,9 +540,9 @@ export default {
       )
     }
 
-    // Lifecycle hooks
     onMounted(() => {
       init3D()
+      window.addEventListener('resize', handleResize)
     })
 
     onUnmounted(() => {
@@ -560,9 +551,18 @@ export default {
         modelBox.value.removeChild(renderer.domElement)
         renderer.dispose()
       }
+      window.removeEventListener('resize', handleResize)
     })
 
-    // Watchers
+    const handleResize = () => {
+      if (renderer && modelBox.value && camera) {
+        const size = Math.min(modelBox.value.clientWidth, 350)
+        renderer.setSize(size, size)
+        camera.aspect = 1
+        camera.updateProjectionMatrix()
+      }
+    }
+
     watch(() => props.userColorType, (newType) => {
       if (newType) selectedColorType.value = newType
     })
@@ -651,6 +651,10 @@ export default {
   margin-bottom: 30px;
 }
 
+.control-section:last-child {
+  margin-bottom: 0;
+}
+
 .control-section h3 {
   color: #2d3748;
   margin-bottom: 15px;
@@ -673,6 +677,7 @@ export default {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 1rem;
 }
 
 .color-type-btn:hover {
@@ -703,6 +708,7 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 5px;
+  font-size: 0.95rem;
 }
 
 .toggle-btn.active {
@@ -722,8 +728,9 @@ export default {
 }
 
 .color-btn {
-  width: 50px;
-  height: 50px;
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 50px;
   border-radius: 12px;
   border: 3px solid transparent;
   cursor: pointer;
@@ -765,6 +772,7 @@ export default {
   color: #4a5568;
   margin-bottom: 8px;
   display: block;
+  font-size: 0.95rem;
 }
 
 .option-buttons {
@@ -780,6 +788,7 @@ export default {
   background: white;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 0.9rem;
 }
 
 .option-btn.active {
@@ -798,6 +807,11 @@ export default {
   margin-bottom: 8px;
   color: #4a5568;
   line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.tip:last-child {
+  margin-bottom: 0;
 }
 
 .model-section {
@@ -815,8 +829,10 @@ export default {
 }
 
 .model-box {
-  width: 350px;
-  height: 350px;
+  width: 100%;
+  max-width: 350px;
+  aspect-ratio: 1;
+  margin: 0 auto;
   background: #f0f0f0;
   border-radius: 16px;
   display: flex;
@@ -859,15 +875,19 @@ export default {
   display: flex;
   gap: 10px;
   margin-top: 15px;
+  flex-wrap: wrap;
 }
 
 .control-btn {
+  flex: 1;
+  min-width: 140px;
   padding: 10px 15px;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
   background: white;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 0.9rem;
 }
 
 .control-btn:hover {
@@ -882,6 +902,12 @@ export default {
   box-shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
 
+.color-analysis h4 {
+  color: #2d3748;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
 .analysis-card {
   display: flex;
   align-items: center;
@@ -889,20 +915,29 @@ export default {
   padding: 15px;
   background: #f7fafc;
   border-radius: 12px;
-  margin-top: 15px;
 }
 
 .color-swatch {
   width: 60px;
   height: 60px;
+  flex-shrink: 0;
   border-radius: 12px;
   border: 2px solid white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
+.color-info {
+  flex: 1;
+}
+
 .color-info p {
   margin-bottom: 5px;
   color: #4a5568;
+  font-size: 0.95rem;
+}
+
+.color-info p:last-child {
+  margin-bottom: 0;
 }
 
 .good {
@@ -915,13 +950,380 @@ export default {
   font-weight: 600;
 }
 
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Tablets and below (1024px) */
 @media (max-width: 1024px) {
   .main-content {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
-  
+
   .header h1 {
     font-size: 2rem;
+  }
+
+  .model-section {
+    order: -1;
+  }
+}
+
+/* Tablets (768px and below) */
+@media (max-width: 768px) {
+  .outfit-selector {
+    padding: 15px;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+  }
+
+  .color-type-badge {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .controls-panel {
+    padding: 20px;
+  }
+
+  .control-section {
+    margin-bottom: 25px;
+  }
+
+  .control-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+
+  .color-type-selector {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .color-type-btn {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+
+  .toggle-btn {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+
+  .toggle-btn .icon {
+    font-size: 1.3rem;
+  }
+
+  .color-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .color-btn {
+    min-height: 45px;
+  }
+
+  .recommend-badge {
+    font-size: 1.1rem;
+  }
+
+  .option-btn {
+    padding: 9px 12px;
+    font-size: 0.85rem;
+  }
+
+  .style-tips {
+    padding: 12px;
+  }
+
+  .tip {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+
+  .model-container {
+    padding: 15px;
+  }
+
+  .model-box {
+    max-width: 100%;
+  }
+
+  .model-controls {
+    gap: 8px;
+  }
+
+  .control-btn {
+    min-width: 120px;
+    padding: 9px 12px;
+    font-size: 0.85rem;
+  }
+
+  .color-analysis {
+    padding: 15px;
+  }
+
+  .color-analysis h4 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+
+  .analysis-card {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .color-swatch {
+    width: 50px;
+    height: 50px;
+  }
+
+  .color-info p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  .outfit-selector {
+    padding: 10px;
+  }
+
+  .header {
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+
+  .color-type-badge {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .main-content {
+    gap: 15px;
+  }
+
+  .controls-panel {
+    padding: 15px;
+    border-radius: 15px;
+  }
+
+  .control-section {
+    margin-bottom: 20px;
+  }
+
+  .control-section h3 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .color-type-selector {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .color-type-btn {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .toggle-group {
+    gap: 6px;
+  }
+
+  .toggle-btn {
+    padding: 10px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+  }
+
+  .toggle-btn .icon {
+    font-size: 1.2rem;
+  }
+
+  .color-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .color-btn {
+    min-height: 50px;
+    border-radius: 10px;
+  }
+
+  .recommend-badge {
+    font-size: 1rem;
+  }
+
+  .clothing-options {
+    gap: 12px;
+  }
+
+  .option-group label {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+
+  .option-buttons {
+    gap: 6px;
+  }
+
+  .option-btn {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+
+  .style-tips {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .tip {
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+  }
+
+  .model-container {
+    padding: 12px;
+    border-radius: 15px;
+  }
+
+  .model-box {
+    border-radius: 12px;
+  }
+
+  .model-controls {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .control-btn {
+    min-width: 100%;
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .color-analysis {
+    padding: 12px;
+    border-radius: 15px;
+  }
+
+  .color-analysis h4 {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+
+  .analysis-card {
+    padding: 10px;
+    gap: 10px;
+    flex-direction: column;
+    text-align: center;
+    border-radius: 10px;
+  }
+
+  .color-swatch {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+  }
+
+  .color-info p {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
+}
+
+/* Extra small devices (360px and below) */
+@media (max-width: 360px) {
+  .header h1 {
+    font-size: 1.3rem;
+  }
+
+  .color-type-badge {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+
+  .controls-panel {
+    padding: 12px;
+  }
+
+  .control-section h3 {
+    font-size: 0.95rem;
+  }
+
+  .color-type-btn {
+    padding: 7px 8px;
+    font-size: 0.85rem;
+  }
+
+  .toggle-btn {
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+
+  .color-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+  }
+
+  .color-btn {
+    min-height: 45px;
+  }
+
+  .tip {
+    font-size: 0.8rem;
+  }
+
+  .color-analysis h4 {
+    font-size: 0.9rem;
+  }
+
+  .color-info p {
+    font-size: 0.8rem;
+  }
+}
+
+/* Landscape mode for mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+  .outfit-selector {
+    padding: 10px;
+  }
+
+  .header {
+    margin-bottom: 15px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+
+  .main-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .section {
+    padding: 10px 0;
+  }
+
+  .control-section {
+    margin-bottom: 15px;
+  }
+
+  .model-box {
+    max-width: 280px;
+    max-height: 280px;
   }
 }
 </style>
