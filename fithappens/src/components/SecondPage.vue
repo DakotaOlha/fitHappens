@@ -39,7 +39,7 @@
               class="toggle-btn"
             >
               <span class="icon">👕</span>
-              Верх
+              <span class="label">Верх</span>
             </button>
             <button 
               :class="{ active: clothesMode === 'bottom' }" 
@@ -47,7 +47,7 @@
               class="toggle-btn"
             >
               <span class="icon">👖</span>
-              Низ
+              <span class="label">Низ</span>
             </button>
           </div>
         </div>
@@ -148,7 +148,7 @@
           
           <div class="model-controls">
             <button @click="resetCamera" class="control-btn">
-              🔄 Скинути вигляд
+              🔄 Скинути
             </button>
             <button @click="toggleWireframe" class="control-btn">
               {{ wireframe ? '🎭 Звичайний' : '📐 Каркас' }}
@@ -162,13 +162,13 @@
           <div class="analysis-card">
             <div class="color-swatch" :style="{ backgroundColor: currentColorHex }"></div>
             <div class="color-info">
-              <p><strong>Поточний колір:</strong> {{ currentColorName }}</p>
+              <p><strong>Поточний:</strong> {{ currentColorName }}</p>
               <p><strong>Рекомендація:</strong> 
                 <span :class="{ 
                   'good': isColorRecommended, 
                   'warning': !isColorRecommended 
                 }">
-                  {{ isColorRecommended ? 'Відмінно підходить!' : 'Можна спробувати інший' }}
+                  {{ isColorRecommended ? 'Підходить!' : 'Спробуйте інший' }}
                 </span>
               </p>
             </div>
@@ -291,7 +291,7 @@ export default {
     const colorType = computed(() => selectedColorType.value)
     
     const displayResult = computed(() => {
-      return colorTypeResult.value || `${selectedColorType.value} - рекомендовані кольори для вашого типу`
+      return colorTypeResult.value || `${selectedColorType.value} - рекомендовані кольори`
     })
     
     const colorTypes = computed(() => 
@@ -603,52 +603,64 @@ export default {
 </script>
 
 <style scoped>
+* {
+  box-sizing: border-box;
+}
+
 .outfit-selector {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  padding: 15px;
+  overflow-x: hidden;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   color: white;
+  padding: 0 10px;
 }
 
 .header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 15px;
+  font-size: clamp(1.3rem, 5vw, 2.5rem);
+  margin-bottom: 12px;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  word-wrap: break-word;
 }
 
 .color-type-badge {
   display: inline-block;
   background: rgba(255,255,255,0.2);
   backdrop-filter: blur(10px);
-  padding: 10px 20px;
-  border-radius: 25px;
+  padding: 8px 16px;
+  border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.3);
+  font-size: clamp(0.8rem, 3vw, 1rem);
+  max-width: 95%;
+  word-wrap: break-word;
 }
 
 .main-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  grid-template-columns: 1fr;
+  gap: 20px;
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .controls-panel {
-  background: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.98);
   backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 16px;
+  padding: 20px 15px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  width: 100%;
+  overflow: hidden;
 }
 
 .control-section {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .control-section:last-child {
@@ -657,32 +669,34 @@ export default {
 
 .control-section h3 {
   color: #2d3748;
-  margin-bottom: 15px;
-  font-size: 1.2rem;
+  margin-bottom: 12px;
+  font-size: clamp(1rem, 4vw, 1.2rem);
   font-weight: 600;
 }
 
 .color-type-selector {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
 .color-type-btn {
-  padding: 12px 16px;
+  padding: 10px 8px;
   border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 10px;
   background: white;
   color: #4a5568;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1rem;
+  font-size: clamp(0.85rem, 3.5vw, 1rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .color-type-btn:hover {
   border-color: #667eea;
-  transform: translateY(-2px);
 }
 
 .color-type-btn.active {
@@ -692,23 +706,24 @@ export default {
 }
 
 .toggle-group {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
 
 .toggle-btn {
-  flex: 1;
-  padding: 15px;
+  padding: 12px 8px;
   border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 10px;
   background: white;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  font-size: 0.95rem;
+  justify-content: center;
+  gap: 4px;
+  min-height: 70px;
 }
 
 .toggle-btn.active {
@@ -718,20 +733,26 @@ export default {
 }
 
 .toggle-btn .icon {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 5vw, 1.5rem);
+}
+
+.toggle-btn .label {
+  font-size: clamp(0.8rem, 3vw, 0.95rem);
 }
 
 .color-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  gap: 8px;
+  max-width: 100%;
 }
 
 .color-btn {
   width: 100%;
   aspect-ratio: 1;
   min-height: 50px;
-  border-radius: 12px;
+  max-height: 70px;
+  border-radius: 10px;
   border: 3px solid transparent;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -739,56 +760,62 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
 }
 
-.color-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+.color-btn:active {
+  transform: scale(0.95);
 }
 
 .color-btn.active {
   border-color: #667eea;
-  transform: scale(1.1);
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #667eea;
 }
 
 .color-btn.recommended {
-  box-shadow: 0 0 0 2px gold;
+  box-shadow: 0 0 0 3px gold;
+}
+
+.color-btn.recommended.active {
+  box-shadow: 0 0 0 2px white, 0 0 0 4px gold;
 }
 
 .recommend-badge {
   color: gold;
-  font-size: 1.2rem;
-  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+  font-size: clamp(1rem, 4vw, 1.2rem);
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
+  filter: drop-shadow(0 0 2px rgba(255,215,0,0.8));
 }
 
 .clothing-options {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .option-group label {
   font-weight: 600;
   color: #4a5568;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   display: block;
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 3vw, 0.95rem);
 }
 
 .option-buttons {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
 }
 
 .option-btn {
-  flex: 1;
-  padding: 10px 15px;
+  padding: 9px 12px;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
   background: white;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
+  white-space: nowrap;
 }
 
 .option-btn.active {
@@ -799,15 +826,16 @@ export default {
 
 .style-tips {
   background: #f7fafc;
-  border-radius: 12px;
-  padding: 15px;
+  border-radius: 10px;
+  padding: 12px;
 }
 
 .tip {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: #4a5568;
   line-height: 1.5;
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 3vw, 0.95rem);
+  word-wrap: break-word;
 }
 
 .tip:last-child {
@@ -817,15 +845,18 @@ export default {
 .model-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
+  width: 100%;
 }
 
 .model-container {
-  background: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.98);
   backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  width: 100%;
+  overflow: hidden;
 }
 
 .model-box {
@@ -834,7 +865,7 @@ export default {
   aspect-ratio: 1;
   margin: 0 auto;
   background: #f0f0f0;
-  border-radius: 16px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -847,14 +878,23 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
   color: #667eea;
   text-align: center;
-  padding: 20px;
+  padding: 15px;
 }
 
 .error-overlay {
   color: #e53e3e;
+}
+
+.error-overlay small {
+  font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+}
+
+.loading-overlay p,
+.error-overlay p {
+  font-size: clamp(0.85rem, 3vw, 1rem);
 }
 
 .loading-spinner {
@@ -872,68 +912,77 @@ export default {
 }
 
 .model-controls {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .control-btn {
-  flex: 1;
-  min-width: 140px;
-  padding: 10px 15px;
+  padding: 10px 12px;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
   background: white;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .control-btn:hover {
   border-color: #667eea;
 }
 
+.control-btn:active {
+  transform: scale(0.98);
+}
+
 .color-analysis {
-  background: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.98);
   backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  width: 100%;
+  overflow: hidden;
 }
 
 .color-analysis h4 {
   color: #2d3748;
-  margin-bottom: 15px;
-  font-size: 1.1rem;
+  margin-bottom: 12px;
+  font-size: clamp(1rem, 4vw, 1.1rem);
 }
 
 .analysis-card {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 15px;
+  gap: 12px;
+  padding: 12px;
   background: #f7fafc;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .color-swatch {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   flex-shrink: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 2px solid white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .color-info {
   flex: 1;
+  min-width: 0;
 }
 
 .color-info p {
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   color: #4a5568;
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 3vw, 0.95rem);
+  word-wrap: break-word;
 }
 
 .color-info p:last-child {
@@ -950,159 +999,145 @@ export default {
   font-weight: 600;
 }
 
-/* ========== RESPONSIVE DESIGN ========== */
-
-/* Tablets and below (1024px) */
-@media (max-width: 1024px) {
-  .main-content {
-    grid-template-columns: 1fr;
-    gap: 20px;
+/* ========== DESKTOP STYLES ========== */
+@media (min-width: 1025px) {
+  .outfit-selector {
+    padding: 20px;
   }
 
-  .header h1 {
-    font-size: 2rem;
+  .main-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+
+  .controls-panel {
+    padding: 30px;
+  }
+
+  .control-section {
+    margin-bottom: 30px;
+  }
+
+  .color-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .model-container {
+    padding: 20px;
+  }
+
+  .color-analysis {
+    padding: 20px;
+  }
+}
+
+/* ========== TABLETS ========== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    max-width: 700px;
+    margin: 0 auto;
   }
 
   .model-section {
     order: -1;
   }
+
+  .color-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 
-/* Tablets (768px and below) */
-@media (max-width: 768px) {
+/* ========== MOBILE LANDSCAPE ========== */
+@media (max-width: 768px) and (orientation: landscape) {
   .outfit-selector {
-    padding: 15px;
+    padding: 10px;
+  }
+
+  .header {
+    margin-bottom: 10px;
   }
 
   .header h1 {
-    font-size: 1.8rem;
-    margin-bottom: 12px;
+    font-size: 1.3rem;
+    margin-bottom: 8px;
   }
 
   .color-type-badge {
-    padding: 8px 16px;
-    font-size: 0.9rem;
+    padding: 6px 12px;
+    font-size: 0.8rem;
   }
 
-  .controls-panel {
-    padding: 20px;
+  .main-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .controls-panel,
+  .model-container,
+  .color-analysis {
+    padding: 10px;
   }
 
   .control-section {
-    margin-bottom: 25px;
-  }
-
-  .control-section h3 {
-    font-size: 1.1rem;
     margin-bottom: 12px;
   }
 
-  .color-type-selector {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .color-type-btn {
-    padding: 10px 12px;
-    font-size: 0.95rem;
-  }
-
-  .toggle-btn {
-    padding: 12px;
+  .control-section h3 {
     font-size: 0.9rem;
-  }
-
-  .toggle-btn .icon {
-    font-size: 1.3rem;
+    margin-bottom: 8px;
   }
 
   .color-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    gap: 6px;
   }
 
   .color-btn {
-    min-height: 45px;
+    min-height: 40px;
+    max-height: 50px;
   }
 
-  .recommend-badge {
-    font-size: 1.1rem;
-  }
-
-  .option-btn {
-    padding: 9px 12px;
-    font-size: 0.85rem;
+  .toggle-btn {
+    min-height: 60px;
+    padding: 8px 6px;
   }
 
   .style-tips {
-    padding: 12px;
+    padding: 8px;
   }
 
   .tip {
-    font-size: 0.9rem;
-    margin-bottom: 6px;
-  }
-
-  .model-container {
-    padding: 15px;
+    font-size: 0.75rem;
+    margin-bottom: 4px;
   }
 
   .model-box {
     max-width: 100%;
-  }
-
-  .model-controls {
-    gap: 8px;
-  }
-
-  .control-btn {
-    min-width: 120px;
-    padding: 9px 12px;
-    font-size: 0.85rem;
-  }
-
-  .color-analysis {
-    padding: 15px;
-  }
-
-  .color-analysis h4 {
-    font-size: 1rem;
-    margin-bottom: 12px;
+    max-height: 250px;
   }
 
   .analysis-card {
-    padding: 12px;
-    gap: 12px;
+    padding: 8px;
+    gap: 8px;
   }
 
   .color-swatch {
-    width: 50px;
-    height: 50px;
-  }
-
-  .color-info p {
-    font-size: 0.9rem;
+    width: 40px;
+    height: 40px;
   }
 }
 
-/* Mobile (480px and below) */
+/* ========== SMALL MOBILE (480px and below) ========== */
 @media (max-width: 480px) {
   .outfit-selector {
     padding: 10px;
   }
 
   .header {
-    margin-bottom: 20px;
-  }
-
-  .header h1 {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-  }
-
-  .color-type-badge {
-    padding: 6px 12px;
-    font-size: 0.85rem;
+    margin-bottom: 15px;
+    padding: 0 5px;
   }
 
   .main-content {
@@ -1110,28 +1145,19 @@ export default {
   }
 
   .controls-panel {
-    padding: 15px;
-    border-radius: 15px;
+    padding: 15px 12px;
   }
 
   .control-section {
-    margin-bottom: 20px;
-  }
-
-  .control-section h3 {
-    font-size: 1rem;
-    margin-bottom: 10px;
+    margin-bottom: 18px;
   }
 
   .color-type-selector {
-    grid-template-columns: repeat(2, 1fr);
     gap: 6px;
   }
 
   .color-type-btn {
-    padding: 8px 10px;
-    font-size: 0.9rem;
-    border-radius: 10px;
+    padding: 9px 6px;
   }
 
   .toggle-group {
@@ -1139,13 +1165,107 @@ export default {
   }
 
   .toggle-btn {
-    padding: 10px;
-    font-size: 0.85rem;
-    border-radius: 10px;
+    padding: 10px 6px;
+    min-height: 65px;
   }
 
-  .toggle-btn .icon {
-    font-size: 1.2rem;
+  .color-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .color-btn {
+    min-height: 55px;
+    max-height: 65px;
+  }
+
+  .clothing-options {
+    gap: 10px;
+  }
+
+  .option-buttons {
+    gap: 6px;
+  }
+
+  .option-btn {
+    padding: 8px 8px;
+  }
+
+  .style-tips {
+    padding: 10px;
+  }
+
+  .model-container {
+    padding: 12px;
+  }
+
+  .model-controls {
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .control-btn {
+    padding: 9px 10px;
+  }
+
+  .color-analysis {
+    padding: 12px;
+  }
+
+  .analysis-card {
+    padding: 10px;
+    gap: 10px;
+  }
+}
+
+/* ========== EXTRA SMALL MOBILE (360px and below) ========== */
+@media (max-width: 360px) {
+  .outfit-selector {
+    padding: 8px;
+  }
+
+  .header {
+    margin-bottom: 12px;
+  }
+
+  .color-type-badge {
+    padding: 6px 10px;
+  }
+
+  .main-content {
+    gap: 12px;
+  }
+
+  .controls-panel {
+    padding: 12px 10px;
+    border-radius: 12px;
+  }
+
+  .control-section {
+    margin-bottom: 15px;
+  }
+
+  .control-section h3 {
+    margin-bottom: 10px;
+  }
+
+  .color-type-selector {
+    gap: 5px;
+  }
+
+  .color-type-btn {
+    padding: 8px 5px;
+    border-radius: 8px;
+  }
+
+  .toggle-group {
+    gap: 5px;
+  }
+
+  .toggle-btn {
+    padding: 8px 5px;
+    min-height: 60px;
+    border-radius: 8px;
   }
 
   .color-grid {
@@ -1155,175 +1275,146 @@ export default {
 
   .color-btn {
     min-height: 50px;
-    border-radius: 10px;
-  }
-
-  .recommend-badge {
-    font-size: 1rem;
-  }
-
-  .clothing-options {
-    gap: 12px;
-  }
-
-  .option-group label {
-    font-size: 0.9rem;
-    margin-bottom: 6px;
+    max-height: 60px;
+    border-radius: 8px;
   }
 
   .option-buttons {
-    gap: 6px;
+    gap: 5px;
   }
 
   .option-btn {
-    padding: 8px 10px;
-    font-size: 0.8rem;
+    padding: 7px 6px;
     border-radius: 6px;
   }
 
   .style-tips {
-    padding: 10px;
-    border-radius: 10px;
-  }
-
-  .tip {
-    font-size: 0.85rem;
-    margin-bottom: 5px;
+    padding: 8px;
+    border-radius: 8px;
   }
 
   .model-container {
-    padding: 12px;
-    border-radius: 15px;
-  }
-
-  .model-box {
+    padding: 10px;
     border-radius: 12px;
   }
 
-  .model-controls {
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .control-btn {
-    min-width: 100%;
-    width: 100%;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-  }
-
-  .color-analysis {
-    padding: 12px;
-    border-radius: 15px;
-  }
-
-  .color-analysis h4 {
-    font-size: 0.95rem;
-    margin-bottom: 10px;
-  }
-
-  .analysis-card {
-    padding: 10px;
-    gap: 10px;
-    flex-direction: column;
-    text-align: center;
+  .model-box {
     border-radius: 10px;
   }
 
-  .color-swatch {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto;
+  .model-controls {
+    gap: 5px;
+    grid-template-columns: 1fr 1fr;
   }
 
-  .color-info p {
-    font-size: 0.85rem;
-    margin-bottom: 4px;
+  .control-btn {
+    padding: 8px 6px;
+    font-size: 0.75rem;
+  }
+
+  .color-analysis {
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .analysis-card {
+    padding: 8px;
+    gap: 8px;
+    border-radius: 8px;
+  }
+
+  .color-swatch {
+    width: 45px;
+    height: 45px;
   }
 }
 
-/* Extra small devices (360px and below) */
-@media (max-width: 360px) {
+/* ========== ОЧЕНЬ МАЛЕНЬКИЕ ЭКРАНЫ (320px) ========== */
+@media (max-width: 320px) {
   .header h1 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 
   .color-type-badge {
-    font-size: 0.8rem;
-    padding: 5px 10px;
+    font-size: 0.75rem;
+    padding: 5px 8px;
   }
 
   .controls-panel {
-    padding: 12px;
+    padding: 10px 8px;
   }
 
-  .control-section h3 {
-    font-size: 0.95rem;
+  .control-section {
+    margin-bottom: 12px;
   }
 
   .color-type-btn {
-    padding: 7px 8px;
-    font-size: 0.85rem;
-  }
-
-  .toggle-btn {
-    padding: 8px;
     font-size: 0.8rem;
   }
 
+  .toggle-btn {
+    min-height: 55px;
+  }
+
+  .toggle-btn .icon {
+    font-size: 1.1rem;
+  }
+
+  .toggle-btn .label {
+    font-size: 0.75rem;
+  }
+
   .color-grid {
-    grid-template-columns: repeat(3, 1fr);
     gap: 5px;
   }
 
   .color-btn {
     min-height: 45px;
+    max-height: 55px;
   }
 
-  .tip {
-    font-size: 0.8rem;
-  }
-
-  .color-analysis h4 {
+  .recommend-badge {
     font-size: 0.9rem;
   }
 
-  .color-info p {
-    font-size: 0.8rem;
+  .tip {
+    font-size: 0.75rem;
+  }
+
+  .control-btn {
+    font-size: 0.7rem;
+    padding: 7px 5px;
   }
 }
 
-/* Landscape mode for mobile */
-@media (max-height: 600px) and (orientation: landscape) {
+/* ========== FIX FOR OVERFLOW ========== */
+@media (max-width: 768px) {
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .outfit-selector,
+  .main-content,
+  .controls-panel,
+  .model-section,
+  .model-container,
+  .color-analysis {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+/* ========== БЕЗОПАСНАЯ ЗОНА ДЛЯ iOS ========== */
+@supports (padding: max(0px)) {
   .outfit-selector {
-    padding: 10px;
-  }
-
-  .header {
-    margin-bottom: 15px;
-  }
-
-  .header h1 {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-  }
-
-  .main-content {
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-  }
-
-  .section {
-    padding: 10px 0;
-  }
-
-  .control-section {
-    margin-bottom: 15px;
-  }
-
-  .model-box {
-    max-width: 280px;
-    max-height: 280px;
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+    padding-bottom: max(15px, env(safe-area-inset-bottom));
   }
 }
 </style>
